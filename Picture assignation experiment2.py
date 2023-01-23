@@ -1,5 +1,5 @@
-from psychopy import visual,core #import visual, core and hardware modules
-from psychopy.hardware import keyboard
+from psychopy import visual,core #import visual and core module
+from psychopy.hardware import keyboard #import keyboard from hardware module
 import random
 
 win = visual.Window( [1000, 600],color='black') #defining the window
@@ -13,7 +13,7 @@ welcome_text.draw()
 win.flip()
 #define input to keyboard as keys and take the first key input only
 #bc wait keys automatically made a list
-#while loop mit versteckter Zuweisung des Inputs zu key: not in prüft, ob Taste eine der Optionen ist
+#while loop assigning wished input: not in prüft, ob Taste eine der Optionen ist
 while (key := keyboard.waitKeys()[0].name) not in ["i", "space"]:
     pass
 
@@ -74,5 +74,12 @@ with open("results.csv", "w") as file:
     for tp,c,g,rt in results:
         print(f"{tp}, {c}, {g}, {rt}")
         file.write(f"{tp}; {c}; {g}; {rt}\n")
+        
 
-    
+#end screen
+end_text=visual.TextStim (win, text="""Thank you for participating. 
+You have reached the end of the experiment.""")
+#display the end text
+end_text.draw()
+win.flip()
+
