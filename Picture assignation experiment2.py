@@ -83,3 +83,10 @@ You have reached the end of the experiment.""")
 end_text.draw()
 win.flip()
 
+
+
+# GL:
+# all looks fine and neat, I'd just note some really minor things
+# - generally it's a bit basic, maybe add some extra, like dialog box or something
+# - assign objects in the beginning (visual.TextStim); not during
+# - keyboard name should not be overridden
