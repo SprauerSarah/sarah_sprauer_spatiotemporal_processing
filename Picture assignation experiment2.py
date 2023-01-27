@@ -1,9 +1,10 @@
 from psychopy import visual,core #import visual and core module
 from psychopy.hardware import keyboard #import keyboard from hardware module
 import random
+import math
 
 win = visual.Window( [1000, 600],color='black') #defining the window
-keyboard = keyboard.Keyboard() #defining the keyboard
+kb = keyboard.Keyboard() #defining the keyboard
 
 #create a fixation cross
 welcome_text=visual.TextStim (win, text="""Welcome to the experiment\n
@@ -14,7 +15,7 @@ win.flip()
 #define input to keyboard as keys and take the first key input only
 #bc wait keys automatically made a list
 #while loop assigning wished input: not in prüft, ob Taste eine der Optionen ist
-while (key := keyboard.waitKeys()[0].name) not in ["i", "space"]:
+while (key := kb.waitKeys()[0].name) not in ["i", "space"]:
     pass
 
 if key == "i" : 
@@ -24,7 +25,7 @@ if key == "i" :
     please press "l".\nPress any key (e.g. space) to start."""
     visual.TextStim(win, text=infotext).draw()
     win.flip()
-    keyboard.waitKeys()
+    kb.waitKeys()
 
 image_count=4
 
@@ -36,11 +37,28 @@ trials=6
 
 results = [] # list of tuple (past/future, buttons_flipped, guess, rt)
 
+#create a CountdownTimer with integrated numbers
+countdown_circle=visual.Pie(win, fillColor="#ffe0b8", start = 0, end = 0)
+countdown_timer=visual.TextStim(win, text = "3", color="#176e25",height=0.75)
+n_frames = 250.
+for i in range(round(n_frames)):
+    percent = i / n_frames
+    countdown_circle.end = percent * 365
+    countdown_timer.text = str(math.ceil((1- percent) * 3))
+    countdown_circle.draw()
+    countdown_timer.draw()
+    win.flip()
+
+
+#create the assignation boxes
+past_button=visual.TextStim (win, text='Past',color='black')
+future_button=visual.TextStim (win, text='Future',color='black')
+left_box=visual.Rect(win,lineWidth=2,fillColor='#ffe0b8',lineColor='#ffe0b8',color='#ffe0b8')
+right_box=visual.Rect(win,lineWidth=2,fillColor='#ffe0b8',lineColor='#ffe0b8',color='#ffe0b8')
+
+
 stimuli=random.sample(past_images+future_images,trials)
 for stimulus_path, time_period in stimuli:
-    #create the assignation boxes
-    past_button=visual.TextStim (win, text='Past')
-    future_button=visual.TextStim (win, text='Future')
     #shuffle the buttons and assign them as left or right button
     buttons = [past_button, future_button]
     random.shuffle(buttons)
@@ -49,21 +67,29 @@ for stimulus_path, time_period in stimuli:
     picture_stimulus = visual.ImageStim(win, image=stimulus_path)
     picture_stimulus.size = (0.55, 1.2)
     #position the visual components
-    left_button.pos = (-0.8, 0.667)
-    right_button.pos = (0.8, 0.667)
+    left_box.pos = left_button.pos = (-0.8, 0.667)
+    right_box.pos = right_button.pos = (0.8, 0.667)
     picture_stimulus.pos = (0,-0.15)
 
+    #define the size of the buttons
+    w, h = past_button.size
+    
+    right_box.size = left_box.size = (w * 0.67, h * 1.5)
+    
+    
     #draw components
+    left_box.draw()
+    right_box.draw()
     left_button.draw()
     right_button.draw()
     picture_stimulus.draw()
     win.flip()
-    keyboard.clock.reset()
+    kb.clock.reset()
     #get the key input
-    key = keyboard.waitKeys()[0]
+    key = kb.waitKeys()[0]
     #wait for new input if it is not a or l
     while key.name not in ["a", "l"]:
-        key = keyboard.waitKeys()[0]
+        key = kb.waitKeys()[0]
     #check if the participant guessed past or future
     guess = "past" if (key.name == "a") == (left_button == past_button) else "future"
     results.append((time_period, right_button==past_button, guess, key.rt))
@@ -82,11 +108,6 @@ You have reached the end of the experiment.""")
 #display the end text
 end_text.draw()
 win.flip()
+core.wait(4)
 
 
-
-# GL:
-# all looks fine and neat, I'd just note some really minor things
-# - generally it's a bit basic, maybe add some extra, like dialog box or something
-# - assign objects in the beginning (visual.TextStim); not during
-# - keyboard name should not be overridden
